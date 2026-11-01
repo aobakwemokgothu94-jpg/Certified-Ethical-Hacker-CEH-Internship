@@ -1,0 +1,74 @@
+Nmap Network Reconnaissance and Service Enumeration Task
+Target IP: 10.113.155.142
+
+Internal Hostname: ip-10-113-155-142.eu-central-1.compute.internal
+
+Execution Date: November 1, 2026
+
+📋 Overview
+This repository/log documents a progressive Nmap reconnaissance workflow performed against a target Linux host (10.113.155.142). The exercise demonstrates how to systematically escalate scan depth, extract service versions, handle verbosity, apply timing templates, run the Nmap Scripting Engine (NSE), and capture output formats for reporting and analysis.
+
+🛠️ Step-by-Step Command Execution & Methodology
+1. Initial Service Version Detection (-sV)
+To identify the versions of services listening on open ports without running a full noisy scan, service version detection (-sV) was executed.
+
+Bash
+nmap -sV 10.113.155.142
+2. Increasing Verbosity (-v / -vv)
+To troubleshoot scan stalls and capture real-time state changes and reason codes (e.g., syn-ack ttl 64), verbosity was ramped up to level two (-vv):
+
+Bash
+nmap -sV -vv 10.113.155.142
+3. Saving Output Formats (-oA / -oN / -oG)
+To persist the findings for documentation and automated parsing, results were saved using multiple output flags:
+
+All Formats (-oA):
+
+Bash
+nmap -sV -vv -oA target_scan 10.113.155.142
+Normal Format (-oN):
+
+Bash
+nmap -sV -vv -oN scan_results.txt 10.113.155.142
+Greppable Format (-oG):
+
+Bash
+nmap -sV -vv -oG scan_results.gnmap 10.113.155.142
+4. Targeting Specific Ports (-p)
+To verify specific ports or restrict scope (such as auditing specific services or checking web availability like port 80):
+
+Specific Port Lists:
+
+Bash
+nmap -p 22,53,80,8443 10.113.155.142
+Single Port Check (Port 80):
+
+Bash
+nmap -p 80 10.113.155.142
+5. Aggressive Scan & Scripting Engine (NSE) (-A, -T5, --script=vuln)
+To execute a comprehensive audit covering OS fingerprinting, default scripts, vulnerability checks, and accelerated timing templates:
+
+Bash
+sudo nmap -T5 -sV -vv -A --script=vuln 10.113.155.142
+📊 Summary of Scan Results
+Open Ports & Services
+Port	Protocol	State	Service	Version / Details
+22/tcp	TCP	Open	ssh	OpenSSH 9.6p1 Ubuntu 3ubuntu13.20 (Protocol 2.0)
+53/tcp	TCP	Open	domain	dnsmasq 2.91
+80/tcp	TCP	Closed	http	Connection refused
+7777/tcp	TCP	Filtered	cbt	No response
+7778/tcp	TCP	Filtered	interwise	No response
+8443/tcp	TCP	Open	ssl/https-alt	Amazon DCV (Remote Desktop Protocol web interface)
+Host & OS Intelligence
+OS Guess: Linux (Linux Kernel 2.6.32 / Ubuntu environment)
+
+Uptime: ~33.3 days (since Sept 29, 2026)
+
+Network Distance: 0 hops (Local / Direct interface context)
+
+🔍 Key Findings & Security Takeaways
+SSH (Port 22): Running a modern OpenSSH build with supported host keys (ECDSA and ED25519) exposed via NSE script checks (ssh-hostkey).
+
+DNS / Dnsmasq (Port 53): Local DNS forwarding/resolution service active (dnsmasq 2.91), verified via NSE dns-nsid.
+
+Amazon DCV (Port 8443): Identified hosting a secure remote desktop web viewer (dcv). The service returned standard HTTP/1.0 400 Bad Request responses to raw TCP probes but provided valid self-signed SSL/TLS certificate attributes (commonName=ip-172-31-39-192).
